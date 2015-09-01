@@ -149,7 +149,7 @@ class LogStash::Inputs::Elasticsearch < LogStash::Inputs::Base
 
     # since 'scan' doesn't return data on the search call, do an extra scroll
     if @scan
-      r = run_next(output_queue, r['_scroll_id'])
+      r = process_next_scroll(output_queue, r['_scroll_id'])
       has_hits = r['has_hits']
     else # not a scan, process the response
       r['hits']['hits'].each { |hit| push_hit(hit, output_queue) }
@@ -157,13 +157,13 @@ class LogStash::Inputs::Elasticsearch < LogStash::Inputs::Base
     end
 
     while has_hits do
-      r = run_next(output_queue, r['_scroll_id'])
+      r = process_next_scroll(output_queue, r['_scroll_id'])
       has_hits = r['has_hits']
     end
   end # def run
 
   private
-  def run_next(output_queue, scroll_id)
+  def process_next_scroll(output_queue, scroll_id)
     r = scroll_request(scroll_id)
     r['hits']['hits'].each { |hit| push_hit(hit, output_queue) }
     {'has_hits' => r['hits']['hits'].any?, '_scroll_id' => r['_scroll_id']}
