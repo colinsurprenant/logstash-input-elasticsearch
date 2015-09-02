@@ -112,10 +112,6 @@ describe LogStash::Inputs::Elasticsearch do
     insist { event["message"] } == [ "ohayo" ]
   end
 
-end
-
-describe LogStash::Inputs::Elasticsearch, :elasticsearch => true do
-
   context "with Elasticsearch document information" do
     let!(:response) do
       {
@@ -189,7 +185,7 @@ describe LogStash::Inputs::Elasticsearch, :elasticsearch => true do
             }
         ]
 
-        event = input(config) do |pipeline, queue|
+        event = input(config_metadata_with_hash) do |pipeline, queue|
           queue.pop
         end
 
@@ -224,7 +220,7 @@ describe LogStash::Inputs::Elasticsearch, :elasticsearch => true do
       end
 
       it "should move the document info to the @metadata field" do
-        event = input(config) do |pipeline, queue|
+        event = input(config_metadata) do |pipeline, queue|
           queue.pop
         end
 
